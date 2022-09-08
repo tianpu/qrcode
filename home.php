@@ -26,7 +26,7 @@ if($mode=='encode'){
 				}
 				$d['data'] = file_get_contents($s['tmp_name']);
 				if(!empty($d['data'])){
-					$d['data'] = chunk_split(base64_encode($d['data']));
+					$d['data'] = base64_encode($d['data']);
 				}
 				else{
 					$d = [];
@@ -38,20 +38,24 @@ if($mode=='encode'){
 		}
 		else{
 			$html.= '<p>base64_decode the text, then save the binary data as '.$d['name'].'<br>'.PHP_EOL;
-			$html.= 'Sample script at https://gist.github.com/tianpu/qrcode<br>'.PHP_EOL;
+			$html.= 'Sample script at https://github.com/tianpu/qrcode<br>'.PHP_EOL;
 			$html.= '</p>'.PHP_EOL;
-			$html.= '<script src="./img/jquery.min.js"></script>'.PHP_EOL;
-			$html.= '<script src="./img/qrcode.min.js"></script>'.PHP_EOL;
-			$html.= '<div id="qrcode"></div>'.PHP_EOL;
-			$html.= '<script type="text/javascript">
-var qrtext = '.json_encode($d['data']).';
-var qrcode = new QRCode(document.getElementById(\'qrcode\'),{
+			if(strlen($d['data'])>2331){
+				$html.= 'File size ('.strlen($d['data']).'B) exceed (CorrectLevel: M-2331, H-1273)'.PHP_EOL;
+			}
+			else{
+				$html.= '<script src="./img/easy.qrcode.min.js"></script>'.PHP_EOL;
+				$html.= '<div id="qrcode"></div>'.PHP_EOL;
+				$html.= '<script type="text/javascript">
+var options = {
+	text:"'.$d['data'].'",
 	width:512,
 	height:512,
-	useSVG:false
-});
-qrcode.makeCode(qrtext);
+	correctLevel:QRCode.CorrectLevel.'.(strlen($d['data'])>1273?'M':'H').'
+};
+new QRCode(document.getElementById("qrcode"),options);
 </script>'.PHP_EOL;
+			}
 		}
 	}
 	else{
